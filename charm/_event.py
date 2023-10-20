@@ -1,3 +1,9 @@
+import typing
+
+if typing.TYPE_CHECKING:
+    import charm
+
+
 class Event:
     pass
 
@@ -43,4 +49,30 @@ class UpdateStatusEvent(Event):
 
 
 class UpgradeCharmEvent(Event):
+    pass
+
+
+class RelationEvent(Event):
+    @property
+    def relation(self) -> charm.Relation:
+        pass
+
+
+class RelationBrokenEvent(RelationEvent):
+    pass
+
+
+class RelationChangedEvent(RelationEvent):
+    pass
+
+
+class RelationCreatedEvent(RelationEvent):
+    pass
+
+
+class RelationDepartedEvent(RelationEvent):
+    departing_unit: charm.Unit
+
+
+class RelationJoinedEvent(RelationEvent):
     pass

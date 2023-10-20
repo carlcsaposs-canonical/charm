@@ -1,6 +1,5 @@
 import json
 import subprocess
-import typing
 
 from ._event import *
 from ._status import *
@@ -79,6 +78,10 @@ class Relation(dict[str, dict[str, str]]):
     @property
     def my_units(self):
         return self._get_app_units(_app)
+
+    @property
+    def breaking(self):
+        return isinstance(event, RelationBrokenEvent) and event.relation == self
 
 
 class RemoteRelation(Relation):
