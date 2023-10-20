@@ -105,6 +105,7 @@ class RemoteRelation(Relation):
 
 _unit = Unit("foo/0")
 _app = "foo"
+event: Event
 is_leader: bool
 unit_status = _FooExample().unit_status
 app_status: typing.Optional[Status] = None
