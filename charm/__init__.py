@@ -111,4 +111,4 @@ unit_status = _FooExample().unit_status
 app_status: typing.Optional[Status] = None
 config = None
 juju_version = None
-endpoints: dict[str, set[Relation]] = {}
+endpoints: dict[str, list[Relation]] = {}
