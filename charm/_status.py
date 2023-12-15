@@ -155,7 +155,7 @@ _STATUS_CODES: dict[type[Status], str] = {
 }
 
 
-def _get_status(*, app=False) -> typing.Optional[Status]:
+def get_status(*, app=False) -> typing.Optional[Status]:
     command = ["status-get", "--include-data" "--format", "json"]
     if app:
         command += "--application"
@@ -167,34 +167,8 @@ def _get_status(*, app=False) -> typing.Optional[Status]:
         return status_type(result["message"])
 
 
-def _set_status(value: Status, *, app=False):
+def set_status(value: Status, *, app=False):
     command = ["status-set", _STATUS_CODES[type(value)], str(value)]
     if app:
         command += "--application"
     subprocess.run(command, check=True)
-
-
-class _UnitStatus:
-    # Wrapper to create "module property"
-    @property
-    def unit_status(self):
-        return _get_status()
-
-    @unit_status.setter
-    def unit_status(self, value: Status):
-        _set_status(value)
-
-
-class _AppStatus:
-    # Wrapper to create "module property"
-    @property
-    def app_status(self):
-        return _get_status(app=True)
-
-    @app_status.setter
-    def app_status(self, value: Status):
-        _set_status(value, app=True)
-
-
-unit_status = _UnitStatus().unit_status
-app_status = _AppStatus().app_status
