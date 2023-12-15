@@ -1,4 +1,7 @@
 import abc
+import json
+import subprocess
+import typing
 
 
 class _String(str, abc.ABC):
@@ -142,3 +145,56 @@ class MaintenanceStatus(Status):
 
 class BlockedStatus(Status):
     _PRIORITY = 3
+
+
+_STATUS_CODES: dict[type[Status], str] = {
+    ActiveStatus: "active",
+    WaitingStatus: "waiting",
+    MaintenanceStatus: "maintenance",
+    BlockedStatus: "blocked",
+}
+
+
+def _get_status(*, app=False) -> typing.Optional[Status]:
+    command = ["status-get", "--include-data" "--format", "json"]
+    if app:
+        command += "--application"
+    result = json.loads(subprocess.run(command, check=True, capture_output=True).stdout)
+    status_types: dict[str, type[Status]] = {
+        code: status for status, code in _STATUS_CODES.items()
+    }
+    if status_type := status_types.get(result["status"]):
+        return status_type(result["message"])
+
+
+def _set_status(value: Status, *, app=False):
+    command = ["status-set", _STATUS_CODES[type(value)], str(value)]
+    if app:
+        command += "--application"
+    subprocess.run(command, check=True)
+
+
+class _UnitStatus:
+    # Wrapper to create "module property"
+    @property
+    def unit_status(self):
+        return _get_status()
+
+    @unit_status.setter
+    def unit_status(self, value: Status):
+        _set_status(value)
+
+
+class _AppStatus:
+    # Wrapper to create "module property"
+    @property
+    def app_status(self):
+        return _get_status(app=True)
+
+    @app_status.setter
+    def app_status(self, value: Status):
+        _set_status(value, app=True)
+
+
+unit_status = _UnitStatus().unit_status
+app_status = _AppStatus().app_status
